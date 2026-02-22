@@ -1,1 +1,1 @@
-placeholder - reemplazar con dni_template.png real
+server/dni_template.png
