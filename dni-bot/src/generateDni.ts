@@ -1,0 +1,118 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// generateDni.ts — Genera la imagen del DNI usando @napi-rs/canvas
+// 100% Node.js, sin Python, sin Pillow — compatible con Railway
+// ═══════════════════════════════════════════════════════════════════════════
+import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
+import path from "path";
+import fs from "fs";
+
+const TEMPLATE_PATH = path.join(process.cwd(), "assets", "dni_template.png");
+
+// ── Posiciones exactas del template (igual que en generate_dni.py) ────────────
+const POS = {
+  foto:             { x: 25,  y: 93,  w: 220, h: 230 },
+  apellido:         { x: 280, y: 130 },
+  nombre:           { x: 280, y: 195 },
+  nacionalidad:     { x: 565, y: 170 },
+  sexo:             { x: 280, y: 250 },
+  fecha_nacimiento: { x: 280, y: 325 },
+  fecha_emision:    { x: 565, y: 262 },
+  documento:        { x: 117, y: 385 },
+};
+
+// ── Registrar fuentes si existen (opcional, canvas tiene fallback) ────────────
+const FONT_PATHS = [
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+  "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+  "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+];
+for (const fp of FONT_PATHS) {
+  if (fs.existsSync(fp)) {
+    try { GlobalFonts.registerFromPath(fp, "DNIFont"); break; } catch {}
+  }
+}
+
+/**
+ * Descarga el avatar de Roblox desde su URL y lo retorna como imagen canvas.
+ * Elimina el fondo blanco/gris claro típico de Roblox.
+ */
+async function fetchAndProcessAvatar(avatarUrl: string) {
+  try {
+    const res  = await fetch(avatarUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const buf  = Buffer.from(await res.arrayBuffer());
+    const img  = await loadImage(buf);
+
+    // Dibujar en canvas temporal para procesar píxeles
+    const tmp  = createCanvas(img.width, img.height);
+    const ctx  = tmp.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    // Eliminar fondo blanco/gris claro (igual que remove_background en Python)
+    const imageData = ctx.getImageData(0, 0, tmp.width, tmp.height);
+    const data      = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      if (r > 220 && g > 220 && b > 220) data[i + 3] = 0; // transparente
+    }
+    ctx.putImageData(imageData, 0, 0);
+    return tmp;
+  } catch (e) {
+    console.error("Error al cargar avatar:", e);
+    return null;
+  }
+}
+
+/**
+ * Genera la imagen del DNI y retorna un Buffer PNG.
+ */
+export async function generateDniImage(
+  apellido:     string,
+  nombre:       string,
+  nacionalidad: string,
+  sexo:         string,
+  fechaNac:     string,
+  fechaEmision: string,
+  documento:    number,
+  avatarUrl:    string,
+): Promise<Buffer> {
+  // Cargar template
+  const template = await loadImage(TEMPLATE_PATH);
+  const canvas   = createCanvas(template.width, template.height);
+  const ctx      = canvas.getContext("2d");
+
+  // Dibujar template base
+  ctx.drawImage(template, 0, 0);
+
+  // Pegar avatar si hay URL
+  if (avatarUrl) {
+    const avatar = await fetchAndProcessAvatar(avatarUrl);
+    if (avatar) {
+      const { x, y, w, h } = POS.foto;
+      const MARGIN = 5;
+      const scale  = Math.min((w - MARGIN * 2) / avatar.width, (h - MARGIN * 2) / avatar.height);
+      const nw     = Math.floor(avatar.width  * scale);
+      const nh     = Math.floor(avatar.height * scale);
+      const ox     = x + Math.floor((w - nw) / 2);
+      const oy     = y + Math.floor((h - nh) / 2);
+      ctx.drawImage(avatar, ox, oy, nw, nh);
+    }
+  }
+
+  // Configurar fuente y color de texto
+  ctx.fillStyle = "#000000";
+
+  // Textos normales (24px bold)
+  ctx.font = "bold 24px DNIFont, DejaVu Sans, Arial, sans-serif";
+  ctx.fillText(apellido,     POS.apellido.x,         POS.apellido.y);
+  ctx.fillText(nombre,       POS.nombre.x,           POS.nombre.y);
+  ctx.fillText(nacionalidad, POS.nacionalidad.x,      POS.nacionalidad.y);
+  ctx.fillText(sexo,         POS.sexo.x,             POS.sexo.y);
+  ctx.fillText(fechaNac,     POS.fecha_nacimiento.x,  POS.fecha_nacimiento.y);
+  ctx.fillText(fechaEmision, POS.fecha_emision.x,     POS.fecha_emision.y);
+
+  // Documento (28px bold)
+  ctx.font = "bold 28px DNIFont, DejaVu Sans, Arial, sans-serif";
+  ctx.fillText(String(documento), POS.documento.x, POS.documento.y);
+
+  return canvas.toBuffer("image/png");
+}
