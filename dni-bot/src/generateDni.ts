@@ -13,7 +13,7 @@ const POS = {
   foto:             { x: 25,  y: 93,  w: 220, h: 230 },
   apellido:         { x: 280, y: 150 },
   nombre:           { x: 280, y: 215 },
-  nacionalidad:     { x: 565, y: 185 },
+  nacionalidad:     { x: 565, y: 181 },
   sexo:             { x: 280, y: 262 },
   fecha_nacimiento: { x: 280, y: 342 },
   fecha_emision:    { x: 565, y: 267 },
