@@ -1,6 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// generateDni.ts — Genera la imagen del DNI usando @napi-rs/canvas
-// 100% Node.js, sin Python, sin Pillow — compatible con Railway
+// generateDni.ts — ACTUALIZADO con fuentes via nixpacks.toml
 // ═══════════════════════════════════════════════════════════════════════════
 import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
 import path from "path";
