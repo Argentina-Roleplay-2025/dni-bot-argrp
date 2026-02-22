@@ -14,10 +14,10 @@ const POS = {
   apellido:         { x: 280, y: 150 },
   nombre:           { x: 280, y: 215 },
   nacionalidad:     { x: 565, y: 181 },
-  sexo:             { x: 280, y: 267 },
+  sexo:             { x: 280, y: 269 },
   fecha_nacimiento: { x: 280, y: 342 },
-  fecha_emision:    { x: 565, y: 273 },
-  documento:        { x: 119, y: 391 },
+  fecha_emision:    { x: 565, y: 280 },
+  documento:        { x: 119, y: 395 },
 };
 
 /**
