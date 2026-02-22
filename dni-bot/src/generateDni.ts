@@ -7,8 +7,9 @@ import path from "path";
 import fs from "fs";
 
 const TEMPLATE_PATH = path.join(process.cwd(), "assets", "dni_template.png");
+const FONT_PATH = path.join(process.cwd(), "assets", "font.ttf");
 
-// ── Posiciones exactas del template (igual que en generate_dni.py) ────────────
+// ── Posiciones exactas del template ──────────────────────────────────────────
 const POS = {
   foto:             { x: 25,  y: 93,  w: 220, h: 230 },
   apellido:         { x: 280, y: 130 },
@@ -20,18 +21,6 @@ const POS = {
   documento:        { x: 117, y: 385 },
 };
 
-// ── Registrar fuentes si existen (opcional, canvas tiene fallback) ────────────
-const FONT_PATHS = [
-  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-  "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-  "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
-];
-for (const fp of FONT_PATHS) {
-  if (fs.existsSync(fp)) {
-    try { GlobalFonts.registerFromPath(fp, "DNIFont"); break; } catch {}
-  }
-}
-
 /**
  * Descarga el avatar de Roblox desde su URL y lo retorna como imagen canvas.
  * Elimina el fondo blanco/gris claro típico de Roblox.
@@ -42,17 +31,15 @@ async function fetchAndProcessAvatar(avatarUrl: string) {
     const buf  = Buffer.from(await res.arrayBuffer());
     const img  = await loadImage(buf);
 
-    // Dibujar en canvas temporal para procesar píxeles
     const tmp  = createCanvas(img.width, img.height);
     const ctx  = tmp.getContext("2d");
     ctx.drawImage(img, 0, 0);
 
-    // Eliminar fondo blanco/gris claro (igual que remove_background en Python)
     const imageData = ctx.getImageData(0, 0, tmp.width, tmp.height);
     const data      = imageData.data;
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
-      if (r > 220 && g > 220 && b > 220) data[i + 3] = 0; // transparente
+      if (r > 220 && g > 220 && b > 220) data[i + 3] = 0;
     }
     ctx.putImageData(imageData, 0, 0);
     return tmp;
@@ -75,6 +62,17 @@ export async function generateDniImage(
   documento:    number,
   avatarUrl:    string,
 ): Promise<Buffer> {
+
+  // Descargar fuente si no existe
+  if (!fs.existsSync(FONT_PATH)) {
+    console.log("Descargando fuente...");
+    const res = await fetch("https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Bold.ttf");
+    const buf = Buffer.from(await res.arrayBuffer());
+    fs.writeFileSync(FONT_PATH, buf);
+    console.log("Fuente descargada correctamente.");
+  }
+  GlobalFonts.registerFromPath(FONT_PATH, "DNIFont");
+
   // Cargar template
   const template = await loadImage(TEMPLATE_PATH);
   const canvas   = createCanvas(template.width, template.height);
@@ -102,7 +100,7 @@ export async function generateDniImage(
   ctx.fillStyle = "#000000";
 
   // Textos normales (24px bold)
-  ctx.font = "bold 24px DNIFont, DejaVu Sans, Arial, sans-serif";
+  ctx.font = "bold 24px DNIFont, Arial, sans-serif";
   ctx.fillText(apellido,     POS.apellido.x,         POS.apellido.y);
   ctx.fillText(nombre,       POS.nombre.x,           POS.nombre.y);
   ctx.fillText(nacionalidad, POS.nacionalidad.x,      POS.nacionalidad.y);
@@ -111,7 +109,7 @@ export async function generateDniImage(
   ctx.fillText(fechaEmision, POS.fecha_emision.x,     POS.fecha_emision.y);
 
   // Documento (28px bold)
-  ctx.font = "bold 28px DNIFont, DejaVu Sans, Arial, sans-serif";
+  ctx.font = "bold 28px DNIFont, Arial, sans-serif";
   ctx.fillText(String(documento), POS.documento.x, POS.documento.y);
 
   return canvas.toBuffer("image/png");
