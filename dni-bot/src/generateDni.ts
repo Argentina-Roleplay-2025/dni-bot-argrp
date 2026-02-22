@@ -12,7 +12,7 @@ const FONT_PATH = path.join(process.cwd(), "assets", "font.ttf");
 const POS = {
   foto:             { x: 25,  y: 93,  w: 220, h: 230 },
   apellido:         { x: 280, y: 160 },
-  nombre:           { x: 280, y: 225 },
+  nombre:           { x: 280, y: 223 },
   nacionalidad:     { x: 565, y: 200 },
   sexo:             { x: 280, y: 290 },
   fecha_nacimiento: { x: 280, y: 365 },
