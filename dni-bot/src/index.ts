@@ -137,8 +137,8 @@ client.once("ready", async () => {
 
   const statuses = [
     { name: "Developer: @vladimirfernan.", type: ActivityType.Watching },
-    { name: "Comunidad: discord.gg/argrp",  type: ActivityType.Playing  },
-    { name: "TikTok: Argentina_rperlc",      type: ActivityType.Watching },
+    { name: "/ayuda-dni",  type: ActivityType.Playing  },
+    { name: "Comunidad: discord.gg/argentina-rp-er-lc-1349870169056350270",      type: ActivityType.Watching },
   ];
   let si = 0;
   const tick = () => {
