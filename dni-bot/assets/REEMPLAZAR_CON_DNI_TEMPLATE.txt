@@ -1,1 +1,0 @@
-server/dni_template.png
