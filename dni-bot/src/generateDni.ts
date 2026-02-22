@@ -11,13 +11,13 @@ const FONT_PATH = path.join(process.cwd(), "assets", "font.ttf");
 // ── Posiciones exactas del template ──────────────────────────────────────────
 const POS = {
   foto:             { x: 25,  y: 93,  w: 220, h: 230 },
-  apellido:         { x: 280, y: 130 },
-  nombre:           { x: 280, y: 195 },
-  nacionalidad:     { x: 565, y: 170 },
-  sexo:             { x: 280, y: 250 },
-  fecha_nacimiento: { x: 280, y: 325 },
-  fecha_emision:    { x: 565, y: 262 },
-  documento:        { x: 117, y: 385 },
+  apellido:         { x: 280, y: 140 },
+  nombre:           { x: 280, y: 205 },
+  nacionalidad:     { x: 565, y: 180 },
+  sexo:             { x: 280, y: 260 },
+  fecha_nacimiento: { x: 280, y: 335 },
+  fecha_emision:    { x: 565, y: 272 },
+  documento:        { x: 122, y: 395 },
 };
 
 /**
