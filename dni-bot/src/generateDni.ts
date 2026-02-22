@@ -17,7 +17,7 @@ const POS = {
   sexo:             { x: 280, y: 262 },
   fecha_nacimiento: { x: 280, y: 345 },
   fecha_emision:    { x: 565, y: 270 },
-  documento:        { x: 119, y: 400 },
+  documento:        { x: 119, y: 397 },
 };
 
 /**
