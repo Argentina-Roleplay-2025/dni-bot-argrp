@@ -3,5 +3,5 @@ builder = "nixpacks"
 buildCommand = "npm install && npm run build"
 
 [deploy]
-startCommand = "node scripts/importar-calificaciones.mjs && node dist/server/index.js"
+startCommand = "npm start"
 restartPolicyType = "always"
