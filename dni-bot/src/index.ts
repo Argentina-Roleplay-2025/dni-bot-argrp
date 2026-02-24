@@ -136,9 +136,7 @@ client.once("ready", async () => {
   console.log(`✅ Bot conectado como ${client.user?.tag}`);
 
   const statuses = [
-    { name: "Developer: @vladimirfernan.", type: ActivityType.Watching },
     { name: "/ayuda-dni",  type: ActivityType.Playing  },
-    { name: "Comunidad: discord.gg/uMtpSc54Pw",      type: ActivityType.Watching },
   ];
   let si = 0;
   const tick = () => {
